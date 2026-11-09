@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dawa'i | دوائي — Interactive Prototype</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--navy:#0b1f5c;--blue:#3b6bf5;--cyan:#22d3ee;--ink:#0f172a;--mute:#64748b;--ok:#16a34a;--bad:#dc2626;--warn:#d97706;--bg:#071326}
+*{box-sizing:border-box;margin:0}
+body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(1200px 700px at 50% 40%,#0f3b52 0%,#071326 70%);color:#e6f1f7;width:1600px;height:900px;overflow:hidden}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+header h1{font-size:22px;letter-spacing:.3px}header h1 span{color:var(--cyan)}
+.tag{font-size:12px;border:1px solid #2b6b80;border-radius:20px;padding:5px 12px;color:#9fd8e8}
+.stage{display:grid;grid-template-columns:470px 1fr 360px;gap:20px;padding:0 28px;height:760px}
+.panel{background:#ffffff;color:var(--ink);border-radius:16px;padding:18px;overflow:hidden;display:flex;flex-direction:column}
+.panel h2{font-size:17px;color:var(--navy);display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.panel h2 small{font-weight:400;color:var(--mute);font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--mute);font-weight:600;padding:6px 4px;border-bottom:1px solid #e2e8f0}
+td{padding:9px 4px;border-bottom:1px solid #eef2f7;vertical-align:middle}
+tr.sel td{background:#eef4ff}
+.chip{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700}
+.s-pending{background:#fef3c7;color:#92400e}.s-approved{background:#dbeafe;color:#1e40af}.s-ready{background:#dcfce7;color:#166534}.s-collected{background:#e2e8f0;color:#334155}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;background:var(--blue);color:#fff}
+button.sec{background:#e2e8f0;color:#1e293b}button:disabled{opacity:.4;cursor:not-allowed}
+.gate{margin:10px 0;padding:10px;background:#f1f5f9;border-radius:10px;font-size:12px}
+.gate label{display:flex;gap:8px;align-items:center;margin:4px 0}
+#msgP{min-height:34px;font-size:12px;font-weight:700;margin-top:6px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+#log{flex:1;overflow:auto;background:#0b1220;color:#9ee7ff;border-radius:10px;padding:10px;font:11.5px/1.5 Consolas,monospace;margin-top:8px}
+#log div.b{color:#fca5a5}#log div.g{color:#86efac}
+.center{position:relative;display:flex;flex-direction:column;align-items:center}
+.views{display:flex;gap:8px;margin:2px 0 0;z-index:5}
+.views button{background:#12384a;color:#bdeaf7;border:1px solid #2b6b80}.views button.on{background:var(--cyan);color:#06222c}
+#scene{perspective:2000px;width:100%;height:640px;position:relative}
+#cube{position:absolute;left:50%;top:52%;width:0;height:0;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.4,.1,.2,1)}
+.face{position:absolute;left:50%;top:50%;backface-visibility:hidden;background:linear-gradient(160deg,#f4f8fc,#cfdbe8);border:1px solid #9fb3c8;color:var(--ink)}
+.f-front{width:320px;height:540px;margin:-270px 0 0 -160px;transform:translateZ(80px);border-radius:16px;padding:14px}
+.f-back{width:320px;height:540px;margin:-270px 0 0 -160px;transform:rotateY(180deg) translateZ(80px);border-radius:16px;padding:14px}
+.f-right{width:160px;height:540px;margin:-270px 0 0 -80px;transform:rotateY(90deg) translateZ(160px);background:linear-gradient(90deg,#b9c9db,#dbe6f1)}
+.f-left{width:160px;height:540px;margin:-270px 0 0 -80px;transform:rotateY(-90deg) translateZ(160px);background:linear-gradient(90deg,#dbe6f1,#b9c9db)}
+.f-top{width:320px;height:160px;margin:-80px 0 0 -160px;transform:rotateX(90deg) translateZ(270px);background:#d6e2ee;border-radius:12px}
+.f-bottom{width:320px;height:160px;margin:-80px 0 0 -160px;transform:rotateX(-90deg) translateZ(270px);background:#7c8da1}
+.brand{text-align:center;font-weight:800;color:var(--navy);font-size:20px}.brand em{font-style:normal;color:#1593b0}
+#screen{margin:6px 0;height:150px;background:linear-gradient(180deg,#07142e,#0b2a52);border-radius:12px;border:4px solid #1e293b;color:#fff;padding:10px 12px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:5px}
+#screen .t{font-size:17px;font-weight:800}#screen .s{font-size:12px;color:#7dd3fc}
+#codeBox{letter-spacing:7px;font:700 20px Consolas,monospace;background:#0a1630;border:1px solid #2b6b80;border-radius:8px;padding:3px;min-height:30px}
+#screen.good{background:linear-gradient(180deg,#052e1c,#0a4a2c)}#screen.deny{background:linear-gradient(180deg,#3b0a0a,#5b1111)}
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:8px}
+.pad button{padding:6px 0;background:#334155;font-size:12px}
+.scan{display:flex;gap:6px;margin-bottom:8px}.scan button{flex:1;background:#1e40af}
+.lockers{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lk{height:52px;border-radius:8px;background:linear-gradient(#e7eef6,#bccbdc);border:1px solid #8aa0b8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#334155;font-size:15px;position:relative}
+.lk.loaded{box-shadow:inset 0 0 0 3px #38bdf8}
+.lk.open{background:linear-gradient(#bbf7d0,#4ade80);color:#052e16;box-shadow:0 0 18px #4ade80;transform:perspective(200px) rotateY(-28deg);transform-origin:left}
+.lk small{position:absolute;bottom:3px;font-size:9px;font-weight:700}
+.sidetxt{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;color:#334155;font-size:13px;font-weight:700}
+.vent{width:70%;height:8px;border-radius:4px;background:#8aa0b8;margin:3px 0}
+.phoneWrap{display:flex;align-items:center;justify-content:center;height:100%}
+.phone{width:290px;height:560px;border-radius:34px;border:9px solid #0f172a;background:#f8fafc;padding:18px 16px;position:relative;overflow:hidden}
+.phone h3{font-size:17px;color:var(--navy);margin-bottom:3px}.phone p{font-size:12px;color:var(--mute)}
+.steps{margin:14px 0}.st{display:flex;gap:10px;align-items:center;margin:9px 0;font-size:13px;color:#94a3b8}
+.st i{width:22px;height:22px;border-radius:50%;background:#e2e8f0;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px}
+.st.done{color:#166534}.st.done i{background:#22c55e;color:#fff}.st.cur{color:var(--navy);font-weight:700}.st.cur i{background:var(--blue);color:#fff}
+.tokenCard{border:2px dashed #3b6bf5;border-radius:14px;padding:12px;text-align:center;margin-top:8px;background:#fff}
+#qr{image-rendering:pixelated;width:130px;height:130px}
+#tok{font:800 26px Consolas,monospace;letter-spacing:5px;color:var(--navy)}
+.toast{position:absolute;left:10px;right:10px;top:-80px;background:#0f172a;color:#fff;border-radius:12px;padding:10px;font-size:12px;transition:top .4s}
+.toast.show{top:10px}
+.foot{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:11px;color:#6fb5c9}
+.capt{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);max-width:1100px;background:rgba(2,12,24,.88);border:1px solid #22d3ee;color:#fff;padding:12px 24px;border-radius:12px;font-size:21px;font-weight:700;display:none;z-index:50;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Dawa'i <span>|</span> دوائي &nbsp;<small style="font-weight:400;color:#7fb7c9">Interactive concept prototype</small></h1>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="tag">SYNTHETIC DATA · NOT CLINICALLY VALIDATED · NOT HOSPITAL-CONNECTED</span>
+    <button class="sec" id="langBtn">العربية</button>
+    <button class="sec" id="resetBtn">Reset demo</button>
+  </div>
+</header>
+<div class="stage">
+  <section class="panel" id="pharm">
+    <h2>Pharmacist Portal <small>release gate · demo user</small></h2>
+    <table><thead><tr><th>Order</th><th>Patient (synthetic)</th><th>Medication</th><th>Locker</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="gate">
+      <b>Pharmacist release checklist — order <span id="selId">#1042</span></b>
+      <label><input type="checkbox" id="ck1"> Patient identity and prescription matched</label>
+      <label><input type="checkbox" id="ck2"> Medication, label and quantity checked</label>
+      <label><input type="checkbox" id="ck3"> Eligible refill (no cold-chain / controlled item)</label>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="approveBtn">1 · Approve release</button>
+        <button id="loadBtn">2 · Load into locker &amp; notify</button>
+      </div>
+      <div id="msgP"></div>
+    </div>
+    <b style="font-size:12px;color:var(--mute)">AUDIT LOG</b>
+    <div id="log"></div>
+  </section>
+
+  <section class="center">
+    <div class="views" id="views">
+      <button data-v="front" class="on">Front</button><button data-v="back">Back</button><button data-v="right">Right</button>
+      <button data-v="left">Left</button><button data-v="top">Top</button><button data-v="bottom">Bottom</button><button data-v="auto">Auto-rotate</button>
+    </div>
+    <div id="scene"><div id="cube">
+      <div class="face f-front">
+        <div class="brand">Dawa'i <em>| دوائي</em></div>
+        <div id="screen"><div class="t" id="sT"></div><div class="s" id="sS"></div><div id="codeBox"></div></div>
+        <div class="pad" id="pad"></div>
+        <div class="scan"><button id="scanBtn"></button><button id="enterBtn" style="background:#15803d"></button></div>
+        <div class="lockers" id="lockers"></div>
+      </div>
+      <div class="face f-back"><div class="brand" style="font-size:15px">SERVICE SIDE</div>
+        <div class="sidetxt"><div style="width:84%;height:120px;border:2px solid #8aa0b8;border-radius:8px;display:flex;align-items:center;justify-content:center">Maintenance hatch (key)</div>
+        <div class="vent"></div><div class="vent"></div><div class="vent"></div><div>Power · LAN · UPS port</div><div>Pharmacist loading door</div><div style="font-size:11px;color:#64748b">Prototype v0.1 · concept only</div></div></div>
+      <div class="face f-right"><div class="sidetxt"><div>Dawa'i</div><div class="vent"></div><div class="vent"></div><div class="vent"></div><div>CCTV · right</div></div></div>
+      <div class="face f-left"><div class="sidetxt"><div>دوائي</div><div class="vent"></div><div class="vent"></div><div class="vent"></div><div>Emergency release</div></div></div>
+      <div class="face f-top"><div class="sidetxt" style="gap:8px"><div>Ventilation · cable entry</div><div class="vent"></div><div class="vent"></div></div></div>
+      <div class="face f-bottom"><div class="sidetxt" style="color:#e2e8f0">Anchor base · levelling feet</div></div>
+    </div></div>
+    <div class="foot">Drag the cabinet to rotate · keypad, scan and lockers are live · all data fictional</div>
+  </section>
+
+  <section class="panel" style="background:#ecf3f9">
+    <h2>Patient App <small>demo · Patient A</small></h2>
+    <div class="phoneWrap"><div class="phone">
+      <div class="toast" id="toast"></div>
+      <h3 id="pTitle"></h3><p id="pSub"></p>
+      <div class="steps" id="steps"></div>
+      <div class="tokenCard" id="tokenCard" style="display:none"><canvas id="qr" width="21" height="21"></canvas><div id="tok"></div><p id="tokHelp"></p></div>
+      <p id="pNote" style="margin-top:10px"></p>
+    </div></div>
+  </section>
+</div>
+<div class="capt" id="capt"></div>
+
+<script>
+const T={en:{idleT:"Collect your medication",idleS:"Scan your QR code or enter your 6-digit code",scan:"Scan QR",enter:"Enter",clr:"Clear",
+ noQR:"No QR code presented",noQRs:"Your medication is not ready yet",bad:"Code not recognised",badS:"Please try again",early:"Medication not released yet",earlyS:"Wait for the ready notification",
+ lock:"Kiosk locked",lockS:"Please see the pharmacy counter",open:"Locker {n} is open",openS:"Take your medication, then close the door",done:"Thank you — collection recorded",doneS:"Have a healthy day",
+ pT:"Your medication",pSub:"Order #1042 · Metformin 500 mg refill",s:["Order received","Pharmacist approved","Ready — locker loaded","Collected"],
+ tokHelp:"Show this QR at the kiosk or type the code. One-time use.",note:"Pickup is only possible after pharmacist release.",nSent:"Your medication is ready at locker {n}. Code sent."},
+ ar:{idleT:"استلم دواءك",idleS:"امسح رمز QR أو أدخل الرمز المكوّن من 6 أرقام",scan:"مسح QR",enter:"إدخال",clr:"مسح",
+ noQR:"لم يتم عرض رمز QR",noQRs:"دواؤك غير جاهز بعد",bad:"الرمز غير معروف",badS:"حاول مرة أخرى",early:"لم يتم صرف الدواء بعد",earlyS:"انتظر إشعار الجاهزية",
+ lock:"الجهاز مقفل",lockS:"يرجى مراجعة شباك الصيدلية",open:"الخزانة {n} مفتوحة",openS:"خذ دواءك ثم أغلق الباب",done:"شكرًا — تم تسجيل الاستلام",doneS:"دمتم بصحة",
+ pT:"دواؤك",pSub:"الطلب #1042 · إعادة صرف ميتفورمين 500 ملغ",s:["تم استلام الطلب","وافق الصيدلاني","جاهز — الخزانة محمّلة","تم الاستلام"],
+ tokHelp:"اعرض هذا الرمز عند الجهاز أو اكتبه. استخدام لمرة واحدة.",note:"لا يمكن الاستلام إلا بعد موافقة الصيدلاني.",nSent:"دواؤك جاهز في الخزانة {n}. تم إرسال الرمز."}};
+let lang='en';
+const L0=()=>[{id:1042,pt:"Patient A",med:"Metformin 500 mg",lk:5,st:"pending",tok:null,ap:false},
+ {id:1043,pt:"Patient B",med:"Amlodipine 5 mg",lk:2,st:"pending",tok:null,ap:false},
+ {id:1044,pt:"Patient C",med:"Atorvastatin 20 mg",lk:8,st:"pending",tok:null,ap:false}];
+let orders=L0(),sel=1042,code="",fails=0,locked=false,openLk=null,openOrder=null,logs=[],clock=new Date(2026,10,8,10,0,0);
+const $=id=>document.getElementById(id);
+const tm=()=>{clock=new Date(clock.getTime()+7000);return clock.toTimeString().slice(0,8)};
+function log(m,c=''){logs.push([tm(),m,c]);$('log').innerHTML=logs.map(l=>`<div class="${l[2]}">${l[0]}  ${l[1]}</div>`).join('');$('log').scrollTop=1e9}
+const ord=id=>orders.find(o=>o.id===id);
+function pMsg(t,c){$('msgP').textContent=t;$('msgP').className=c}
+function approve(){const o=ord(sel);
+ if(!($('ck1').checked&&$('ck2').checked&&$('ck3').checked)){pMsg("Blocked: complete the full pharmacist checklist first","bad");log(`#${o.id} approval BLOCKED (checklist incomplete)`,'b');return false}
+ if(o.st!=='pending'){pMsg("Order already approved","bad");return false}
+ o.st='approved';o.ap=true;pMsg("Approved — now load the medication into locker "+o.lk,"ok");log(`#${o.id} approved by pharmacist (demo)`,'g');render();return true}
+function load(){const o=ord(sel);
+ if(!o.ap){pMsg("Blocked: pharmacist approval required before loading","bad");log(`#${o.id} load BLOCKED (not approved)`,'b');return false}
+ if(o.st==='ready'||o.st==='collected'){pMsg("Already loaded","bad");return false}
+ o.st='ready';o.tok=String(Math.floor(100000+Math.random()*899999));
+ pMsg(`Loaded in locker ${o.lk} — patient notified`,"ok");log(`#${o.id} loaded in locker ${o.lk}; one-time code issued; patient notified`,'g');
+ if(o.id===1042)toast(T[lang].nSent.replace('{n}',o.lk));render();return true}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
+let kMsg=null;
+function setK(t,s,cls){kMsg={t,s,cls};kRender();clearTimeout(setK.tm);if(cls==='deny'||cls==='good')setK.tm=setTimeout(()=>{if(!openLk){kMsg=null;kRender()}},3200)}
+function verify(c){
+ if(locked){return}
+ const o=orders.find(x=>x.tok&&x.tok===c&&x.st==='ready');
+ if(!o){const early=orders.find(x=>x.tok===null&&false);
+  fails++;log(`kiosk: invalid or unavailable code (${fails}/3)`,'b');
+  if(fails>=3){locked=true;log('kiosk: locked after 3 failed attempts — staffed counter fallback','b');setK(T[lang].lock,T[lang].lockS,'deny')}
+  else setK(T[lang].bad,T[lang].badS,'deny');code="";kRender();return false}
+ fails=0;o.st='collected';openLk=o.lk;openOrder=o.id;o.tok=o.tok;o.used=true;code="";
+ log(`kiosk: code accepted for #${o.id}; locker ${o.lk} unlocked`,'g');setK(T[lang].open.replace('{n}',o.lk),T[lang].openS,'good');render();
+ setTimeout(()=>{if(openLk===o.lk){openLk=null;log(`locker ${o.lk} closed; collection of #${o.id} recorded`,'g');setK(T[lang].done,T[lang].doneS,'good');render()}},4500);
+ return true}
+function scan(){const o=ord(1042);
+ if(o.st!=='ready'||!o.tok){fails++;log('kiosk: scan attempted with no valid QR (patient app shows none)','b');
+  if(fails>=3){locked=true;setK(T[lang].lock,T[lang].lockS,'deny')}else setK(T[lang].noQR,T[lang].noQRs,'deny');return false}
+ return verify(o.tok)}
+function kRender(){const t=T[lang];$('sT').textContent=kMsg?kMsg.t:t.idleT;$('sS').textContent=kMsg?kMsg.s:t.idleS;
+ $('screen').className=kMsg?kMsg.cls:'';$('codeBox').textContent=code.padEnd(6,'·').split('').join(' ').trim()||'';
+ $('scanBtn').textContent=t.scan;$('enterBtn').textContent=t.enter;
+ $('screen').style.direction=lang==='ar'?'rtl':'ltr'}
+function qr(tok){const c=$('qr'),x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,21,21);x.fillStyle='#0b1f5c';
+ let s=0;for(const ch of tok)s=(s*31+ch.charCodeAt(0))>>>0;const r=()=>{s=(s*1664525+1013904223)>>>0;return s>>>28};
+ const fin=(a,b)=>{for(let i=0;i<7;i++)for(let j=0;j<7;j++){const e=i==0||j==0||i==6||j==6||(i>1&&i<5&&j>1&&j<5);if(e)x.fillRect(a+i,b+j,1,1)}};
+ for(let i=0;i<21;i++)for(let j=0;j<21;j++){const inF=(i<8&&j<8)||(i>12&&j<8)||(i<8&&j>12);if(!inF&&r()>7)x.fillRect(i,j,1,1)}
+ fin(0,0);fin(14,0);fin(0,14)}
+function render(){
+ $('rows').innerHTML=orders.map(o=>`<tr class="${o.id===sel?'sel':''}" data-id="${o.id}" style="cursor:pointer"><td>#${o.id}</td><td>${o.pt}</td><td>${o.med}</td><td>${o.lk}</td><td><span class="chip s-${o.st}">${o.st}</span></td></tr>`).join('');
+ $('selId').textContent='#'+sel;
+ document.querySelectorAll('#rows tr').forEach(r=>r.onclick=()=>{sel=+r.dataset.id;['ck1','ck2','ck3'].forEach(i=>$(i).checked=false);pMsg('','');render()});
+ const L=$('lockers');L.innerHTML='';for(let n=1;n<=9;n++){const d=document.createElement('div');d.className='lk';d.id='lk'+n;
+  const o=orders.find(x=>x.lk===n&&x.st==='ready');if(o)d.classList.add('loaded');if(openLk===n)d.classList.add('open');
+  d.innerHTML=n+(o?'<small>READY</small>':openLk===n?'<small>OPEN</small>':'');L.appendChild(d)}
+ const p=ord(1042),t=T[lang],idx={pending:0,approved:1,ready:2,collected:3}[p.st];
+ document.querySelector('.phone').style.direction=lang==='ar'?'rtl':'ltr';
+ $('pTitle').textContent=t.pT;$('pSub').textContent=t.pSub;$('pNote').textContent=t.note;$('tokHelp').textContent=t.tokHelp;
+ $('steps').innerHTML=t.s.map((s,i)=>`<div class="st ${i<idx||(p.st==='collected'&&i===3)?'done':i===idx?'cur':''}"><i>${i<idx||(p.st==='collected'&&i===3)?'✓':i+1}</i>${s}</div>`).join('');
+ const showTok=p.st==='ready';$('tokenCard').style.display=showTok?'block':'none';if(showTok){qr(p.tok);$('tok').textContent=p.tok}
+ kRender()}
+function pad(){const h=$('pad');h.innerHTML='';[...'1234567890'].forEach(d=>{const b=document.createElement('button');b.textContent=d;b.dataset.k=d;b.onclick=()=>{if(code.length<6&&!locked){code+=d;kRender()}};h.appendChild(b)})}
+$('approveBtn').onclick=approve;$('loadBtn').onclick=load;$('scanBtn').onclick=scan;
+$('enterBtn').onclick=()=>{if(code.length===6)verify(code);else{setK(T[lang].bad,T[lang].badS,'deny')}};
+$('resetBtn').onclick=reset;
+function reset(){orders=L0();sel=1042;code="";fails=0;locked=false;openLk=null;kMsg=null;logs=[];['ck1','ck2','ck3'].forEach(i=>$(i).checked=false);pMsg('','');log('demo reset — all orders pending','');render()}
+$('langBtn').onclick=()=>setLang(lang==='en'?'ar':'en');
+function setLang(l){lang=l;$('langBtn').textContent=l==='en'?'العربية':'English';render()}
+// 3D rotation
+const V={front:[0,0],back:[0,180],right:[0,-90],left:[0,90],top:[-90,0],bottom:[90,0]};let rx=-6,ry=-18,auto=null;
+function setRot(a,b){rx=a;ry=b;$('cube').style.transform=`rotateX(${a}deg) rotateY(${b}deg)`}
+function view(v){clearInterval(auto);document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ if(v==='auto'){$('cube').style.transition='none';auto=setInterval(()=>setRot(-8,ry+1.2),30);return}
+ $('cube').style.transition='transform 1s cubic-bezier(.4,.1,.2,1)';setRot(...V[v])}
+document.querySelectorAll('#views button').forEach(b=>b.onclick=()=>view(b.dataset.v));
+let drag=null;$('scene').onmousedown=e=>{if(e.target.closest('button'))return;drag=[e.clientX,e.clientY,rx,ry];clearInterval(auto);$('cube').style.transition='none'};
+window.onmousemove=e=>{if(!drag)return;setRot(Math.max(-90,Math.min(90,drag[2]-(e.clientY-drag[1])/3)),drag[3]+(e.clientX-drag[0])/3)};
+window.onmouseup=()=>drag=null;
+// caption helper for the demo video
+window.caption=(t)=>{const c=$('capt');if(!t){c.style.display='none';return}c.textContent=t;c.style.display='block'};
+window.DAWAI={view,reset,get state(){return {orders:JSON.parse(JSON.stringify(orders)),locked,openLk,fails}},setLang};
+pad();reset();view('front');
+</script>
+</body>
+</html>
